@@ -1,0 +1,19 @@
+version: '3'
+services:
+  prowlarr-search:
+    build: .
+    container_name: prowlarr-search
+    ports:
+      - "80:80"
+    volumes:
+      - ./data:/app/data  # Pour la base SQLite
+    environment:
+      - NODE_ENV=production
+      - PORT=3001  # Port du backend
+      - JWT_SECRET=change_this_to_a_secure_secret
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped

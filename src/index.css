@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(17, 24, 39);
+  color: rgb(229, 231, 235);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Styles personnalisés pour les composants */
+.search-input {
+  @apply w-full px-4 py-3 pl-12 rounded-lg bg-gray-800 border border-gray-700 text-gray-100 placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-colors;
+}
+
+.btn-primary {
+  @apply px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-sm font-medium text-gray-400 hover:text-gray-200;
+}
+
+.card {
+  @apply bg-gray-800 rounded-lg border border-gray-700 p-6 hover:border-gray-600 transition-colors;
+}
+
+.input-field {
+  @apply mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm;
+}
+
+.badge {
+  @apply px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-primary {
+  @apply bg-blue-900/50 text-blue-400;
+}
+
+.badge-success {
+  @apply bg-green-900/50 text-green-400;
+}
+
+.badge-warning {
+  @apply bg-yellow-900/50 text-yellow-400;
+}
+
+.badge-danger {
+  @apply bg-red-900/50 text-red-400;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
