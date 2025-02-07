@@ -5,7 +5,7 @@ import { tmdbAPI } from '../lib/tmdb';
 
 interface ResultCardProps {
   result: SearchResult;
-  onDownload: () => void;
+  onDownload: (result: SearchResult) => void;
   isSearchResult?: boolean;
   poster?: string | null;
 }
@@ -104,7 +104,7 @@ export function ResultCard({ result, onDownload, isSearchResult = false, poster 
             </>
           )}
           <button
-            onClick={onDownload}
+            onClick={() => onDownload(result)}
             className="ml-4 flex items-center gap-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded-md transition-colors shrink-0"
             title="Télécharger le torrent"
           >

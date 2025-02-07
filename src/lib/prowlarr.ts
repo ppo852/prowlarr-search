@@ -3,13 +3,35 @@ import type { SearchResult, CategoryType } from '../types';
 import { CATEGORY_MAPPING } from '../types';
 
 class ProwlarrAPI {
-  private readonly DEBUG = true;
-
   private getHeaders(apiKey: string) {
     return {
       'X-Api-Key': apiKey,
       'Accept': 'application/json'
     };
+  }
+
+  private getCategoryName(categoryId: number): string {
+    if (!categoryId) return 'Unknown';
+    
+    // Movies: 2000-2999
+    if (categoryId >= 2000 && categoryId < 3000) return 'movies';
+    
+    // TV: 5000-5999 (excluding 5070)
+    if ((categoryId >= 5000 && categoryId < 5070) || (categoryId > 5070 && categoryId < 6000)) return 'tv';
+    
+    // Anime: 5070
+    if (categoryId === 5070) return 'anime';
+    
+    // Music: 3000-3999
+    if (categoryId >= 3000 && categoryId < 4000) return 'music';
+    
+    // Software: 4000-4999
+    if (categoryId >= 4000 && categoryId < 5000) return 'software';
+    
+    // Books: 7000-7999
+    if (categoryId >= 7000 && categoryId < 8000) return 'books';
+    
+    return 'other';
   }
 
   async search(query: string, category: CategoryType = 'all'): Promise<SearchResult[]> {
@@ -32,11 +54,6 @@ class ProwlarrAPI {
         }
       }
 
-      if (this.DEBUG) {
-        console.log('🏷️ Selected category:', category);
-        console.log('📊 Category ID:', CATEGORY_MAPPING[category]?.[0]);
-      }
-
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers: this.getHeaders(settings.apiKey)
@@ -54,52 +71,36 @@ class ProwlarrAPI {
 
       const data = await response.json();
 
-      if (this.DEBUG) {
-        console.log('📦 Raw results:', data);
-      }
-
       const results = data
-        .map((item: any) => ({
-          name: item.title,
-          link: item.downloadUrl || item.guid,
-          size: item.size,
-          seeds: item.seeders || 0,
-          leech: item.peers || 0,
-          engine_url: item.indexer,
-          desc_link: item.infoUrl || '',
-          category: this.getCategoryName(item.categories?.[0]?.id)
-        }))
-        .filter((item: SearchResult) => item.seeds >= minSeeds);
+        .map((item: any) => {
+          const itemCategory = this.getCategoryName(item.categories?.[0]?.id);
+          return {
+            name: item.title,
+            link: item.downloadUrl || item.guid,
+            size: item.size,
+            seeds: item.seeders || 0,
+            leech: item.peers || 0,
+            engine_url: item.indexer,
+            desc_link: item.infoUrl || '',
+            category: itemCategory
+          };
+        })
+        .filter((item: SearchResult) => {
+          // Filtre par seeds minimum
+          if (item.seeds < minSeeds) return false;
+          
+          // Filtre par catégorie si une catégorie est sélectionnée
+          if (category !== 'all' && item.category !== category) return false;
+          
+          return true;
+        });
 
       return results;
+
     } catch (error) {
       console.error('🚨 Prowlarr search error:', error);
       throw error;
     }
-  }
-
-  private getCategoryName(categoryId: number): string {
-    if (!categoryId) return 'Unknown';
-    
-    // Movies: 2000-2999
-    if (categoryId >= 2000 && categoryId < 3000) return 'Movies';
-    
-    // TV: 5000-5999 (excluding 5070)
-    if ((categoryId >= 5000 && categoryId < 5070) || (categoryId > 5070 && categoryId < 6000)) return 'TV';
-    
-    // Anime: 5070
-    if (categoryId === 5070) return 'Anime';
-    
-    // Music: 3000-3999
-    if (categoryId >= 3000 && categoryId < 4000) return 'Music';
-    
-    // Software: 4000-4999
-    if (categoryId >= 4000 && categoryId < 5000) return 'Software';
-    
-    // Books: 7000-7999
-    if (categoryId >= 7000 && categoryId < 8000) return 'Books';
-    
-    return 'Other';
   }
 }
 

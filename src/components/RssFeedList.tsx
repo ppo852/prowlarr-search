@@ -101,19 +101,23 @@ export function RssFeedList({ onDownload }: RssFeedListProps) {
   const queryClient = useQueryClient();
 
   const { data: feeds = [], isLoading: isLoadingFeeds, refetch: refetchFeeds } = useQuery({
-    queryKey: ['rss-feeds'],
-    queryFn: () => token ? fetchFeeds(token) : Promise.resolve([]),
+    queryKey: ['rss-feeds', token],
+    queryFn: () => {
+      console.log('Chargement des flux RSS...');
+      return token ? fetchFeeds(token) : Promise.resolve([]);
+    },
     enabled: !!token && !!user?.id,
-    staleTime: Infinity, // Les données ne deviennent jamais périmées automatiquement
-    cacheTime: Infinity, // Le cache ne expire jamais automatiquement
+    staleTime: Infinity,
+    cacheTime: Infinity,
     refetchOnWindowFocus: false,
-    refetchOnMount: true, // Permettre le chargement au montage initial
+    refetchOnMount: true,
     refetchOnReconnect: false
   });
 
   const { data: feedItems = {}, isLoading: isLoadingItems, refetch: refetchItems } = useQuery({
-    queryKey: ['rss-items'],
+    queryKey: ['rss-items', token],
     queryFn: async () => {
+      console.log('Chargement des éléments RSS...');
       if (!token || feeds.length === 0) return {};
       
       const itemsByFeed: { [feedId: string]: RssFeedItem[] } = {};
@@ -131,35 +135,31 @@ export function RssFeedList({ onDownload }: RssFeedListProps) {
       return itemsByFeed;
     },
     enabled: !!token && feeds.length > 0,
-    staleTime: Infinity, // Les données ne deviennent jamais périmées automatiquement
-    cacheTime: Infinity, // Le cache ne expire jamais automatiquement
+    staleTime: Infinity,
+    cacheTime: Infinity,
     refetchOnWindowFocus: false,
-    refetchOnMount: true, // Permettre le chargement au montage initial
+    refetchOnMount: true,
     refetchOnReconnect: false
   });
 
   const isLoading = isLoadingFeeds || isLoadingItems;
 
   const handleRefresh = async () => {
-    console.log('🔄 Début du rafraîchissement');
     try {
       // 1. Invalider le cache
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['rss-feeds'] }),
-        queryClient.invalidateQueries({ queryKey: ['rss-items'] })
+        queryClient.invalidateQueries({ queryKey: ['rss-feeds', token] }),
+        queryClient.invalidateQueries({ queryKey: ['rss-items', token] })
       ]);
-      console.log('🗑️ Cache invalidé');
 
       // 2. Recharger les données
       const feeds = await refetchFeeds();
-      console.log('📥 Flux RSS rechargés');
       
       if (feeds.data && feeds.data.length > 0) {
-        const items = await refetchItems();
-        console.log('📥 Items RSS rechargés');
+        await refetchItems();
       }
     } catch (error) {
-      console.error('❌ Erreur:', error);
+      console.error('Erreur lors du rafraîchissement:', error);
     }
   };
 
@@ -241,8 +241,13 @@ export function RssFeedList({ onDownload }: RssFeedListProps) {
           return category !== null;
         })
       : allItems.filter(item => detectCategory(item.category) === currentCategory);
-
-    return filteredItems;
+      
+    // Ajouter le tri ici
+    return filteredItems.sort((a, b) => {
+      const dateA = new Date(a.pubDate);
+      const dateB = new Date(b.pubDate);
+      return dateB.getTime() - dateA.getTime();
+    });
   };
 
   const getCurrentPageItems = () => {

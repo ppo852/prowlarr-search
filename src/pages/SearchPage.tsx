@@ -12,7 +12,7 @@ import { tmdbAPI } from '../lib/tmdb';
 import { globalSettings } from '../lib/settings';
 
 export function SearchPage() {
-  const [sortOption, setSortOption] = useState<SortOption>('seeds');
+  const [sortOption, setSortOption] = useState<SortOption>('size');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [settings, setSettings] = useState<any>(null);
   const [showToast, setShowToast] = useState(false);

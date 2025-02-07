@@ -31,31 +31,23 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (username: string, password: string) => {
     try {
-      console.log(' Tentative de connexion pour:', username);
       const response = await db.verifyUser(username, password);
       
       if (!response) {
-        console.log(' Échec de la connexion');
         return false;
       }
 
       const { token, user } = response;
-      console.log(' Connexion réussie, données reçues:', {
-        ...user,
-        qbit_password: user.qbit_password ? '***' : 'non configuré'
-      });
       
       // Invalider le cache avant la connexion
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['rss-feeds'] }),
         queryClient.invalidateQueries({ queryKey: ['rss-items'] })
       ]);
-      console.log(' Cache invalidé');
       
       // Sauvegarder dans le localStorage
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user', JSON.stringify(user));
-      console.log(' Données sauvegardées dans localStorage');
 
       // Mettre à jour le store
       set({
@@ -69,29 +61,24 @@ export const useAuthStore = create<AuthState>((set) => ({
           qbit_password: user.qbit_password
         }
       });
-      console.log(' Store mis à jour');
 
       return true;
     } catch (error) {
-      console.error(' Erreur lors de la connexion:', error);
+      console.error('Erreur lors de la connexion:', error);
       return false;
     }
   },
 
   logout: () => {
-    console.log(' Déconnexion...');
     // Invalider le cache
     queryClient.invalidateQueries({ queryKey: ['rss-feeds'] });
     queryClient.invalidateQueries({ queryKey: ['rss-items'] });
-    console.log(' Cache invalidé');
     
     // Nettoyer le localStorage
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
-    console.log(' LocalStorage nettoyé');
     
     // Réinitialiser le store
     set({ user: null, token: null });
-    console.log(' Store réinitialisé');
   }
 }));

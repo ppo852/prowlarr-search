@@ -13,22 +13,12 @@ class TmdbAPI {
   }
 
   private cleanTitle(title: string): string {
-    if (this.DEBUG) {
-      console.log('🔍 Original title:', title);
-    }
-
     // First, split on common delimiters
     const parts = title.split(/[.\s]+/);
-    if (this.DEBUG) {
-      console.log('📑 Parts après split:', parts);
-    }
     
     // Find the year if present
     const yearMatch = title.match(/(?:19|20)\d{2}/);
     const year = yearMatch ? yearMatch[0] : '';
-    if (this.DEBUG) {
-      console.log('📅 Année trouvée:', year);
-    }
 
     // Build clean title by taking everything before the first format indicator
     let cleanedTitle = '';
@@ -45,15 +35,9 @@ class TmdbAPI {
         part.match(/^[A-Z0-9]{2,}$/) || // Skip likely release group names
         part.match(/S\d{1,2}/) // Skip season indicators
       )) {
-        if (this.DEBUG) {
-          console.log('⛔ Stop au mot:', part);
-        }
         break;
       }
       cleanedTitle += part + ' ';
-      if (this.DEBUG) {
-        console.log('✅ Ajout du mot:', part);
-      }
     }
 
     // Clean up the title
@@ -67,15 +51,9 @@ class TmdbAPI {
     const parenthesesMatch = title.match(/\(([^)]+)\)$/);
     if (parenthesesMatch) {
       const titleInParentheses = parenthesesMatch[1].trim();
-      if (this.DEBUG) {
-        console.log('🎯 Titre trouvé entre parenthèses:', titleInParentheses);
-      }
       // Si le titre entre parenthèses est plus court, on l'utilise
       if (titleInParentheses.length < cleanedTitle.length) {
         cleanedTitle = titleInParentheses;
-        if (this.DEBUG) {
-          console.log('✨ Utilisation du titre entre parenthèses car plus court');
-        }
       }
     }
 
@@ -84,18 +62,10 @@ class TmdbAPI {
       cleanedTitle = `${cleanedTitle} ${year}`;
     }
 
-    if (this.DEBUG) {
-      console.log('✨ Titre final:', cleanedTitle);
-    }
-
     return cleanedTitle;
   }
 
   async searchTitle(query: string): Promise<{ id: number; type: 'movie' | 'tv'; posterUrl: string | null } | null> {
-    if (this.DEBUG) {
-      console.log('🔍 Searching TMDB for:', query);
-    }
-
     const token = globalSettings.getTmdbAccessToken();
     if (!token) {
       throw new Error('TMDB access token not configured');
@@ -109,15 +79,8 @@ class TmdbAPI {
       // Deuxième essai sans l'année
       const titleWithoutYear = cleanedTitle.replace(/\s+\d{4}$/, '');
       if (titleWithoutYear !== cleanedTitle) {
-        if (this.DEBUG) {
-          console.log('🔄 Retrying without year:', titleWithoutYear);
-        }
         result = await this.searchWithTitle(titleWithoutYear, query);
       }
-    }
-
-    if (!result && this.DEBUG) {
-      console.log('❌ No results found on TMDB');
     }
 
     return result;
