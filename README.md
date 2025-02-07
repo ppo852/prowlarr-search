@@ -61,7 +61,7 @@ mkdir prowlarr-search && cd prowlarr-search
 version: '3'
 services:
   prowlarr-search:
-    image: ppo852/prowlarr-search:v4.1
+    image: ppo852/prowlarr-search
     container_name: prowlarr-search
     ports:
       - "80:80"  # L'application sera accessible sur le port 80
