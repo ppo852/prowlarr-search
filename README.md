@@ -44,10 +44,12 @@ Une interface web moderne et élégante pour gérer vos recherches Prowlarr et t
 ## 📋 Installation avec Docker
 
 ### Prérequis
+- **Prowlarr** doit être installé pour que cette application fonctionne correctement.
 - Docker et Docker Compose installés sur votre système
 - Un serveur Linux (recommandé) ou Windows avec Docker
 - Minimum 1GB de RAM recommandé
 - 1 CPU core minimum
+- Il est nécessaire d'avoir Prowlarr installé pour que l'application fonctionne.
 
 ### Installation rapide
 
@@ -61,7 +63,7 @@ mkdir prowlarr-search && cd prowlarr-search
 version: '3'
 services:
   prowlarr-search:
-    image: ppo852/prowlarr-search
+    image: ppo852/prowlarr-search:v4.1
     container_name: prowlarr-search
     ports:
       - "80:80"  # L'application sera accessible sur le port 80
